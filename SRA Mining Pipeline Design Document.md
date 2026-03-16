@@ -44,7 +44,7 @@ The biological problem is that there is a massive amount of data in the NCBI Seq
 5. Aggregate results
 
 ### Workflow:
-<img width="8192" height="3642" alt="workflow chart" src="https://github.com/user-attachments/assets/1149ae67-aa48-42d8-bedb-86c74b9aea03" />
+<img width="6961" height="3849" alt="workflow chart" src="https://github.com/user-attachments/assets/b90fd4e7-efea-4416-aa4b-9a5d4b9ad332" />
 
 ## Milestones: 
 <img width="287" height="385" alt="milestones table" src="https://github.com/user-attachments/assets/33a16c6b-798a-409d-b2a9-dd3a27acfa76" />
