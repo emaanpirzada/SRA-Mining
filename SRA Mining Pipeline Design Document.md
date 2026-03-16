@@ -1,5 +1,6 @@
 # Integrating Metadata Filtering with the ARA Pipeline
 Zoe Berge, Peyton Fay, Emaan Pirzada
+
 Last Updated: March 16, 2026
 ## Overview: 
 The Sequence Read Archive (SRA) is a public repository consisting of high throughput data for many samples and their sequences. It consists of different types of data including Illumina, Oxford Nanopore, PacBio, and more. They all originate from different types of metagenomic, environmental, and clinical studies allowing a broad range of information to be examined. This data can be stored in Amazon Web Services (AWS) and Google Cloud Platform (GCP) in both compressed or original formats alongside their metadata describing the sample origins and other important details. The metadata, however, is written by the researchers and can be incomplete, inconsistent, or confusing. This complex web of data and information is difficult to navigate and often dense to parse through. Although there are tool options for searching for what you need, the process is complicated and requires a lot of heavy lifting.
