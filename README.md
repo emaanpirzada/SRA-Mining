@@ -1,4 +1,4 @@
-(Rough Draft - Updated March 23) 
+(Rough Draft/Outline - Updated March 23) 
 
 🧬 SRA-ARA Pipeline (Rough Draft - Updated March 23) 
 
