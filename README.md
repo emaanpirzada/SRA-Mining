@@ -19,9 +19,6 @@ SRA Toolkit: For downloading raw reads (prefetch and fasterq-dump).
 
 Kraken2: For taxonomic profiling of reads.
 ***
-📂 Script Architecture
-
-***
 🚀 Instructions
 
 ***
