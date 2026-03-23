@@ -13,8 +13,6 @@ Python Libraries
 ***
 💽 The Bioinformatics Toolbox
 
-Data Acquisition & Management
-
 NCBI Datasets & SRA Toolkit: Programmatic metadata fetching and 5% "screen-mode" downloads.
 
 Biopython & Pandas: Automated sequence handling and XML/CSV metadata parsing.
