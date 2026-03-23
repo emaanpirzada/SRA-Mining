@@ -37,4 +37,5 @@ Kraken2: Taxonomic classification and sample contamination detection.
 🔌 Example
 ***
 🙏 Acknowledgements
+
 Thank you to Dr. Heather Wheeler, Dr. Catherine Putonti, and the COMP 383 class members for their support and the foundational tools provided for this project.
