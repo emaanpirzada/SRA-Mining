@@ -10,22 +10,33 @@ By allowing users to filter by sample source (e.g., "retina" or "soil") and imme
 🛠️ Dependencies & Software
 Python Libraries
 
-Library	Purposes
-Pandas	Parsing and filtering the large SRA_Accessions.tab file.
-Biopython	Handling FASTA query files and NCBI Entrez utilities.
-Bioinformatics Tools
+***
+💽 The Bioinformatics Toolbox
 
-ARA Pipeline: The core analysis engine (Perl) for record screening.
+Data Acquisition & Management
 
-SRA Toolkit: For downloading raw reads (prefetch and fasterq-dump).
+NCBI Datasets & SRA Toolkit: Programmatic metadata fetching and 5% "screen-mode" downloads.
 
-Kraken2: For taxonomic profiling of reads.
+Biopython & Pandas: Automated sequence handling and XML/CSV metadata parsing.
+
+FastQC & Trimmomatic: Automated quality evaluation and adapter trimming.
+
+FastX Toolkit: Sequence deduplication to reduce redundancy and accelerate analysis.
+
+BLASTn: High-sensitivity mapping against SRA records.
+
+Kraken2: Taxonomic classification and sample contamination detection.
+
 ***
 🚀 Instructions
 
 ***
-📊 Output
+📑Input 
 
+***
+📊 Output
+*** 
+🔌 Example
 ***
 🙏 Acknowledgements
 Thank you to Dr. Heather Wheeler, Dr. Catherine Putonti, and the COMP 383 class members for their support and the foundational tools provided for this project.
