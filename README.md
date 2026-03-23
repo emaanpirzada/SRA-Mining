@@ -1,11 +1,11 @@
 (Rough Draft/Outline - Updated March 23) 
 
-🧬 SRA-ARA Pipeline (Rough Draft - Updated March 23) 
+🧬 SRA-ARA Pipeline 
 
 Automating the bridge between NCBI Metadata Filtering and the ARA Pipeline.
 
-The NCBI Sequence Read Archive (SRA) is a massive repository, but its text-based metadata is often inconsistent. This Python-driven pipeline automates the link between metadata filtering and the Automated Record Analysis (ARA) pipeline.
-By allowing users to filter by sample source (e.g., "retina" or "soil") and immediately BLAST a query sequence against those specific records, we provide a scalable way to conduct targeted meta-analyses without the heavy lifting of manual data retrieval.
+The biological problem is that there is a massive amount of data in the NCBI Sequence Read Archive (SRA) makes it very challenging to conduct sequence-based searches in an efficient way, which forces researchers to rely on sometimes incomplete or inconsistent text-based metadata. This project will provide an automated, and scalable pipeline that can rapidly screen and sample SRA records to dive into specific biological content or specific genes across large datasets without the long wait time and computational costs that are present in today’s methods. 
+
 ***
 🛠️ Dependencies & Software
 Python Libraries
