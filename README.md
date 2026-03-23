@@ -1,3 +1,5 @@
+(Rough Draft - Updated March 23) 
+
 🧬 SRA-ARA Pipeline (Rough Draft - Updated March 23) 
 
 Automating the bridge between NCBI Metadata Filtering and the ARA Pipeline.
