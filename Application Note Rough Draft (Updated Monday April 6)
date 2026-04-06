@@ -1,0 +1,49 @@
+I. Abstract 
+The Problem: Huge SRA datasets are hard to search by sequence and metadata simultaneously.
+
+The Innovation: A Python-based automation script that bridges metadata filtering with the ARA sequence screening pipeline.
+
+Key Features: Automated FTP metadata retrieval, keyword filtering, and targeted BLAST analysis.
+
+The Result: A ranked summary report that identifies relevant biological samples with minimal manual effort.
+
+II. Introduction 
+Biological Challenge: Explain the "Metadata vs. Sequence" gap. (e.g., You know what you’re looking for, but finding where it is in the SRA is slow and expensive).
+
+Current Limitations: Mention how researchers currently have to manually browse NCBI or download massive files just to find a few relevant hits.
+
+The ARA Pipeline: Briefly describe what ARA does (automated downloading/cleaning/taxonomy).
+
+Your Development: "We developed a Python tool to automate the 'pre-processing' step of metadata filtering to feed directly into ARA."
+
+Access: Include the GitHub link here.
+
+III. Implementation 
+The Logic: Describe the transition from the original Perl structure to a Python-centric workflow.
+
+The "Steps" of your script:
+
+Data Acquisition: Connecting to the NCBI SRA FTP site.
+
+Processing: Using pandas and Biopython to parse the CSV/XML files.
+
+Filtering: How the script matches the "Source of Interest" keyword to specific SRA Run Accessions.
+
+The Hand-off: How the script generates the .txt accession list and FASTA query to trigger ARA’s "screening mode."
+
+Efficiency: Explain why you chose "Screening Mode" (5% analysis) to save on computational costs and time.
+
+IV. Results and Discussion 
+The Workflow Visual (Figure 1): Create a flowchart showing:
+
+Input (Keyword/FASTA) → FTP Download → Python Filter → ARA Screening → Output Report.
+
+Test Case (Figure 2 or Table 1): Describe a test run. (e.g., "Searching for [Gene X] in [Tissue Y]"). Show the resulting ranked list of hits.
+
+Impact: How does this improve the workflow? (e.g., "Reduced manual search time from hours to one command").
+
+Limitations & Future Directions: * Limitation: Dependency on researcher-submitted metadata quality.
+
+Future: Potential for "fuzzy matching" to handle typos in metadata or adding more screening tools beyond BLAST/Bowtie2.
+
+V. References 
