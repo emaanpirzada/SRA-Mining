@@ -1,49 +1,56 @@
-I. Abstract 
-The Problem: Huge SRA datasets are hard to search by sequence and metadata simultaneously.
+Application Note: SRA-Mining
+Author: Emaan, Zoe, Peyton
 
-The Innovation: A Python-based automation script that bridges metadata filtering with the ARA sequence screening pipeline.
+1. Abstract
+The Problem: (Briefly explain the struggle of SRA metadata inconsistency).
 
-Key Features: Automated FTP metadata retrieval, keyword filtering, and targeted BLAST analysis.
+The Solution: (High-level summary of the Python integration with ARA).
 
-The Result: A ranked summary report that identifies relevant biological samples with minimal manual effort.
+Key Results: (The final output format and efficiency gains).
 
-II. Introduction 
-Biological Challenge: Explain the "Metadata vs. Sequence" gap. (e.g., You know what you’re looking for, but finding where it is in the SRA is slow and expensive).
+2. Introduction
+Biological Context: * Scale of the NCBI SRA and the difficulty of sequence-based searches.
 
-Current Limitations: Mention how researchers currently have to manually browse NCBI or download massive files just to find a few relevant hits.
+Why text-based metadata is currently a bottleneck for meta-analysis.
 
-The ARA Pipeline: Briefly describe what ARA does (automated downloading/cleaning/taxonomy).
+Existing Tools: * Limitations of current manual retrieval vs. the original ARA pipeline.
 
-Your Development: "We developed a Python tool to automate the 'pre-processing' step of metadata filtering to feed directly into ARA."
+Project Goal: * Summary of the tool we developed to bridge metadata filtering with screening.
 
-Access: Include the GitHub link here.
+Repository: * [Link to GitHub Repo]
 
-III. Implementation 
-The Logic: Describe the transition from the original Perl structure to a Python-centric workflow.
+3. Implementation
+Development Environment: * Rationale for using Python/Biopython/Pandas over the original Perl scripts.
 
-The "Steps" of your script:
+Technical Workflow:
 
-Data Acquisition: Connecting to the NCBI SRA FTP site.
+Phase 1: Connection logic to the NCBI SRA FTP.
 
-Processing: Using pandas and Biopython to parse the CSV/XML files.
+Phase 2: Parsing logic for CSV/XML metadata files.
 
-Filtering: How the script matches the "Source of Interest" keyword to specific SRA Run Accessions.
+Phase 3: Integration with ARA (passing the filtered list + FASTA query).
 
-The Hand-off: How the script generates the .txt accession list and FASTA query to trigger ARA’s "screening mode."
+Functional Specs:
 
-Efficiency: Explain why you chose "Screening Mode" (5% analysis) to save on computational costs and time.
+Inputs: (FASTA query, Source keyword).
 
-IV. Results and Discussion 
-The Workflow Visual (Figure 1): Create a flowchart showing:
+Mechanism: Explaining the 5% "screening mode" logic to save bandwidth. ???(maybe)
 
-Input (Keyword/FASTA) → FTP Download → Python Filter → ARA Screening → Output Report.
+Evaluation: * How we checked for accuracy in the filtered accession lists.
 
-Test Case (Figure 2 or Table 1): Describe a test run. (e.g., "Searching for [Gene X] in [Tissue Y]"). Show the resulting ranked list of hits.
+4. Results and Discussion
+Case Study: * Walkthrough of a test run on a specific dataset.
 
-Impact: How does this improve the workflow? (e.g., "Reduced manual search time from hours to one command").
+Visual Data (Placeholders for 1-2 Figures):
 
-Limitations & Future Directions: * Limitation: Dependency on researcher-submitted metadata quality.
+Figure 1: 
 
-Future: Potential for "fuzzy matching" to handle typos in metadata or adding more screening tools beyond BLAST/Bowtie2.
+Table 1: Speed/Efficiency comparison or hit-count summary. (just an idea)
 
-V. References 
+Impact: * How this improves the "status quo" for SRA data mining.
+
+Critical Analysis: * Limitations (e.g., reliance on metadata quality).
+
+Future improvements (e.g., fuzzy matching or expanded toolsets).
+
+5. References....
