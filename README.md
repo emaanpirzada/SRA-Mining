@@ -26,7 +26,7 @@ BLASTn: High-sensitivity mapping against SRA records.
 Kraken2: Taxonomic classification and sample contamination detection.
 
 ***
-🚀 Instructions
+🚀 Usage Instructions
 
 ***
 📑Input 
