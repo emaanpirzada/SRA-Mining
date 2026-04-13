@@ -1,0 +1,3 @@
+[submodule "ARA"]
+	path = ARA
+	url = https://github.com/maurya-anand/ARA
