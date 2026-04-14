@@ -1,0 +1,6 @@
+Building DAG of jobs...
+MissingInputException in rule run_ara in file /home/epirzada/SRA-Mining/Snakefile, line 43:
+Missing input files for rule run_ara:
+    output: results/pipeline_complete.flag
+    affected files:
+        path/to/query.fasta
