@@ -50,5 +50,3 @@ def download_and_filter_sra(fasta_query, source_interest, output_list="accession
                 f_out.write(f"{columns[0]}\n") # Immedietly write the matching assecions txt file 
         
     return output_list, output_fasta
-
-download_and_filter_sra ("/home/zberge/ARA_Pipeline/example.fasta", "Homo Sapien")
