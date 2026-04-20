@@ -1,0 +1,6 @@
+SystemExit in file /home/epirzada/SRA-Mining/Snakefile, line 19:
+
+[ERROR] Both 'fasta_query' and 'source' must be provided via --config.
+  Example: snakemake --cores 4 --config fasta_query=my_gene.fasta source="eyeball"
+
+  File "/home/epirzada/SRA-Mining/Snakefile", line 19, in <module>

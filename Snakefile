@@ -1,68 +1,178 @@
+# =============================================================================
+# Snakemake Workflow: SRA Mining Pipeline
+# Usage:
+#   snakemake --cores <N> --config fasta_query=<path/to/query.fasta> source="<keyword>"
+#
+# Example:
+#   snakemake --cores 4 --config fasta_query=my_gene.fasta source="eye"
+# =============================================================================
+
 import os
+import sys
 
-# ──────────────────────────────────────────────
-# Read config from command line
-# ──────────────────────────────────────────────
-QUERY       = config["query"]
-SOURCE      = config["source"]
-BLAST_TYPE  = config.get("blast_type", "blastn")
-MODE        = config.get("mode", "screen")
-THREADS     = int(config.get("threads", 4))
-OUTDIR      = config.get("outdir", "results")
-MAX_ACC     = config.get("max_accessions", None)
+# ── Config ────────────────────────────────────────────────────────────────────
+FASTA_QUERY = config.get("fasta_query", None)
+SOURCE      = config.get("source",      None)
 
-# Path to ARA (relative to Snakefile location)
-ARA_DIR = os.path.join(workflow.basedir, "ARA")
+# Validate required inputs up front so errors are clear
+if not FASTA_QUERY or not SOURCE:
+    sys.exit(
+        "\n[ERROR] Both 'fasta_query' and 'source' must be provided via --config.\n"
+        "  Example: snakemake --cores 4 "
+        "--config fasta_query=my_gene.fasta source=\"eyeball\"\n"
+    )
 
-# ──────────────────────────────────────────────
-# Target rule
-# ──────────────────────────────────────────────
+if not os.path.exists(FASTA_QUERY):
+    sys.exit(f"\n[ERROR] Query FASTA file not found: {FASTA_QUERY}\n")
+
+# ── Output paths ──────────────────────────────────────────────────────────────
+ACCESSIONS  = "results/accessions.txt"         # filtered SRA accession list
+QUERY_COPY  = "results/query.fasta"            # copy of query fasta used by ARA
+ARA_DONE    = "results/ara/ara_complete.done"  # sentinel: ARA finished
+ARA_SUMMARY = "results/summary/summary.txt"    # final human-readable summary
+
+# =============================================================================
+# Rule: all — top-level target
+# =============================================================================
 rule all:
     input:
-        os.path.join(OUTDIR, "pipeline_complete.flag")
+        ARA_SUMMARY
 
-
-# ──────────────────────────────────────────────
-# Rule 1: Download SRA metadata & filter by source
-# ──────────────────────────────────────────────
-rule download_and_filter:
+# =============================================================================
+# Rule: prepare_inputs
+#   Calls ARA_input.py to:
+#     1. Download / reuse SRA_Accessions.tab from NCBI FTP
+#     2. Filter rows matching SOURCE keyword
+#     3. Write accessions.txt and query.fasta into results/
+# =============================================================================
+rule prepare_inputs:
     output:
-        accession_list = os.path.join(OUTDIR, "accessions.txt")
+        accessions = ACCESSIONS,
+        query      = QUERY_COPY
     params:
-        source         = SOURCE,
-        max_accessions = MAX_ACC
+        fasta_query = FASTA_QUERY,
+        source      = SOURCE
     log:
-        os.path.join(OUTDIR, "logs", "download_filter.log")
-    script:
-        "ARA_input.py"
-
-
-# ──────────────────────────────────────────────
-# Rule 2: Run ARA (BLAST only)
-# ──────────────────────────────────────────────
-rule run_ara:
-    input:
-        accession_list = os.path.join(OUTDIR, "accessions.txt"),
-        query          = QUERY
-    output:
-        flag = os.path.join(OUTDIR, "pipeline_complete.flag")
-    params:
-        ara_dir  = ARA_DIR,
-        outdir   = OUTDIR,
-        mode     = MODE,
-        config   = os.path.join(ARA_DIR, "conf.txt")
-    threads: THREADS
-    log:
-        os.path.join(OUTDIR, "logs", "ara.log")
+        "logs/prepare_inputs.log"
     shell:
         """
-        perl {params.ara_dir}/ara.pl \
-            --input {input.accession_list} \
-            --sequences {input.query} \
-            --output {params.outdir}/ara_output \
-            --mode {params.mode} \
-            --config {params.config} \
-            2>&1 | tee {log}
-
-        touch {output.flag}
+        mkdir -p results logs
+        python ARA_input.py \
+            --fasta_query  {params.fasta_query} \
+            --source       "{params.source}" \
+            --output_list  {output.accessions} \
+            --output_fasta {output.query} \
+            > {log} 2>&1
         """
+
+# =============================================================================
+# Rule: check_accessions
+#   Validates that the filtered accession list is non-empty before continuing.
+#   Failing here gives a clean error instead of a cryptic ARA crash.
+# =============================================================================
+rule check_accessions:
+    input:
+        ACCESSIONS
+    output:
+        temp("results/accessions_validated.flag")
+    run:
+        with open(input[0]) as fh:
+            lines = [l.strip() for l in fh if l.strip()]
+        if not lines:
+            sys.exit(
+                f"\n[ERROR] No SRA accessions matched source keyword: '{SOURCE}'.\n"
+                "  Try a broader keyword or check SRA_Accessions.tab manually.\n"
+            )
+        print(f"[OK] {len(lines)} accession(s) matched '{SOURCE}'.")
+        with open(output[0], "w") as flag:
+            flag.write(str(len(lines)))
+
+# =============================================================================
+# Rule: run_ara
+#   Passes the accession list and query FASTA to the ARA pipeline.
+#   ARA CLI reference: https://github.com/maurya-anand/ARA
+# =============================================================================
+rule run_ara:
+    input:
+        accessions = ACCESSIONS,
+        query      = QUERY_COPY,
+        validated  = "results/accessions_validated.flag"
+    output:
+        done = ARA_DONE
+    params:
+        ara_outdir = "results/ara",
+        # Optional ARA flags — adjust or expose as config values as needed
+        evalue     = config.get("evalue",   "1e-5"),
+        identity   = config.get("identity", "90"),
+        threads    = config.get("threads",  4)
+    log:
+        "logs/ara.log"
+    shell:
+        """
+        mkdir -p {params.ara_outdir}
+
+        ara \
+            --input    {input.accessions} \
+            --query    {input.query} \
+            --output   {params.ara_outdir} \
+            --evalue   {params.evalue} \
+            --identity {params.identity} \
+            --threads  {params.threads} \
+            > {log} 2>&1
+
+        touch {output.done}
+        """
+
+# =============================================================================
+# Rule: summarize
+#   Collects ARA result files and writes a tidy summary report.
+# =============================================================================
+rule summarize:
+    input:
+        done       = ARA_DONE,
+        accessions = ACCESSIONS,
+        query      = QUERY_COPY
+    output:
+        ARA_SUMMARY
+    params:
+        ara_outdir = "results/ara",
+        source     = SOURCE
+    run:
+        import glob
+        from datetime import datetime
+
+        with open(input.accessions) as fh:
+            accession_list = [l.strip() for l in fh if l.strip()]
+
+        # Collect any TSV/CSV hit files ARA produced
+        hit_files = (
+            glob.glob(os.path.join(params.ara_outdir, "**", "*.tsv"), recursive=True) +
+            glob.glob(os.path.join(params.ara_outdir, "**", "*.csv"), recursive=True)
+        )
+
+        total_hits = 0
+        for hf in hit_files:
+            with open(hf) as fh:
+                total_hits += max(0, sum(1 for l in fh if l.strip()) - 1)  # subtract header
+
+        os.makedirs("results/summary", exist_ok=True)
+        with open(output[0], "w") as out:
+            out.write("=" * 60 + "\n")
+            out.write("  SRA Mining Pipeline — Summary Report\n")
+            out.write("=" * 60 + "\n")
+            out.write(f"  Run date        : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            out.write(f"  Source keyword  : {params.source}\n")
+            out.write(f"  Query FASTA     : {input.query}\n")
+            out.write(f"  Accessions found: {len(accession_list)}\n")
+            out.write(f"  ARA hit files   : {len(hit_files)}\n")
+            out.write(f"  Total BLAST hits: {total_hits}\n")
+            out.write("=" * 60 + "\n\n")
+            out.write("Accessions queried:\n")
+            for acc in accession_list:
+                out.write(f"  {acc}\n")
+            out.write("\nARA output files:\n")
+            for hf in hit_files:
+                out.write(f"  {hf}\n")
+
+        print(f"\n[Done] Summary written to {output[0]}")
+        print(f"       {len(accession_list)} accessions | {total_hits} BLAST hits")
