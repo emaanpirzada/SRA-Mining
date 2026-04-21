@@ -1,0 +1,70 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 4
+Rules claiming more threads will be scaled down.
+Job stats:
+job                 count
+----------------  -------
+all                     1
+check_accessions        1
+prepare_inputs          1
+run_ara                 1
+summarize               1
+total                   5
+
+Select jobs to execute...
+
+[Mon Apr 20 19:30:15 2026]
+rule prepare_inputs:
+    output: results/accessions.txt, results/query.fasta
+    log: logs/prepare_inputs.log
+    jobid: 3
+    reason: Missing output files: results/accessions.txt, results/query.fasta
+    resources: tmpdir=/tmp
+
+[Mon Apr 20 19:31:57 2026]
+Finished job 3.
+1 of 5 steps (20%) done
+Select jobs to execute...
+
+[Mon Apr 20 19:31:57 2026]
+rule check_accessions:
+    input: results/accessions.txt
+    output: results/accessions_validated.flag
+    jobid: 4
+    reason: Missing output files: results/accessions_validated.flag; Input files updated by another job: results/accessions.txt
+    resources: tmpdir=/tmp
+
+[Mon Apr 20 19:31:58 2026]
+Finished job 4.
+2 of 5 steps (40%) done
+Select jobs to execute...
+
+[Mon Apr 20 19:31:58 2026]
+rule run_ara:
+    input: results/accessions.txt, results/query.fasta, results/accessions_validated.flag
+    output: results/ara/ara_complete.done
+    log: logs/ara.log
+    jobid: 2
+    reason: Missing output files: results/ara/ara_complete.done; Input files updated by another job: results/accessions_validated.flag, results/accessions.txt, results/query.fasta
+    resources: tmpdir=/tmp
+
+[Mon Apr 20 19:31:58 2026]
+Error in rule run_ara:
+    jobid: 2
+    input: results/accessions.txt, results/query.fasta, results/accessions_validated.flag
+    output: results/ara/ara_complete.done
+    log: logs/ara.log (check log file(s) for error details)
+    shell:
+        
+        mkdir -p results/ara
+
+        ara             --input    results/accessions.txt             --query    results/query.fasta             --output   results/ara             --evalue   1e-5             --identity 90             --threads  4             > logs/ara.log 2>&1
+
+        touch results/ara/ara_complete.done
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2026-04-20T193014.492414.snakemake.log
