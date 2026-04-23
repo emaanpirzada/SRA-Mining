@@ -1,24 +1,26 @@
 import os
 import time
+import argparse
+
 from Bio import Entrez
 
 # NCBI login
 Entrez.email = "zberge@luc.edu" 
 
-def metadata_search(sample_source, fatsa_query, output_fasta="query.fasta"):
+def metadata_search(sample_source, fasta_query, output_fasta="query.fasta", retmax=500):
     """
     User provides:
     1. sample_source (e.g., "wastewater" or "urine")
-    2. fatsa_query (path to existing file with fasta query)
+    2. fasta_query (path to existing file with fasta query)
     """
 
     # Read the existing FASTA file
-    if not os.path.exists(fatsa_query):
-        print(f"Error: The file '{fatsa_query}' was not found.")
+    if not os.path.exists(fasta_query):
+        print(f"Error: The file '{fasta_query}' was not found.")
         return
 
-    print(f"Reading query sequence from {fatsa_query}...")
-    with open(fatsa_query, "r") as f_in:
+    print(f"Reading query sequence from {fasta_query}...")
+    with open(fasta_query, "r") as f_in:
         query_content = f_in.read()
 
     # Save a copy to the local directory to ensure the ARA pipeline can find it
@@ -93,4 +95,40 @@ def metadata_search(sample_source, fatsa_query, output_fasta="query.fasta"):
     except subprocess.CalledProcessError:
         print("--- ARA Pipeline encountered an error.")'''
 
-metadata_search("gut", "/home/epirzada/SRA-Mining/query.fasta")
+
+##### Command-line interface ##################
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Search NCBI SRA by source keyword and prepare ARA inputs."
+    )
+    parser.add_argument(
+        "--fasta_query",
+        required=True,
+        help="Path to query FASTA file.",
+    )
+    parser.add_argument(
+        "--source",
+        required=True,
+        help="Source keyword to search SRA records (e.g. 'gut', 'wastewater').",
+    )
+    parser.add_argument(
+        "--output_fasta",
+        default="query.fasta",
+        help="Output path for query FASTA copy (default: query.fasta).",
+    )
+    parser.add_argument(
+        "--retmax",
+        type=int,
+        default=500,
+        help="Maximum number of SRA records to retrieve (default: 500).",
+    )
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_args()
+    metadata_search(
+        sample_source = args.source,
+        fasta_query   = args.fasta_query,
+        output_fasta  = args.output_fasta,
+        retmax        = args.retmax,
+    )
