@@ -54,7 +54,7 @@ def metadata_search(sample_source, fasta_query, output_fasta="query.fasta", retm
 
     # Convert internal IDs to SRR Run Accessions
     print("Converting IDs to SRR Run Accessions...")
-    accession_file = "matching_accessions.txt"
+    accession_file = "results/accessions.txt"
     run_accessions = []
 
     # Fetch summary info for the IDs found
