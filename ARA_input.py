@@ -1,102 +1,90 @@
-"""
-ARA_input.py
-Retrieves SRA metadata from NCBI FTP, filters by a source keyword,
-and writes the accession list + query FASTA that ARA needs.
- 
-Usage (standalone):
-    python ARA_input.py --fasta_query my_gene.fasta --source "eyeball"
- 
-Usage (via Snakemake):  called automatically — see Snakefile
-"""
 import os
-import argparse
-from ftplib import FTP
+import time
+from Bio import Entrez
 
-def download_and_filter_sra(fasta_query, source_interest, output_list="results/accessions.txt", output_fasta="results/query.fasta"):
+# NCBI login
+Entrez.email = "zberge@luc.edu" 
+
+def metadata_search(sample_source, fatsa_query, output_fasta="query.fasta"):
     """
-    Connects to NCBI, filters SRA accessions by source, and prepares ARA inputs.
-    """  
-    ######## Below prepares the FASTA for ARA ########
-    ftp_connect = "ftp.ncbi.nlm.nih.gov"
-    metadata_path = "sra/reports/Metadata"
-    filename = "SRA_Accessions.tab"
-    #filename = "SRA_Run_Members.tab" # tab-separated and contains organism/source info 
+    User provides:
+    1. sample_source (e.g., "wastewater" or "urine")
+    2. fatsa_query (path to existing file with fasta query)
+    """
 
-    # Below checks if the full metadata file is downloaded 
-    # IN FUTURE: and if it is up to date 
-    if os.path.exists(filename):
-        print(f"Local copy of '{filename}' is already downloaded.")
-    else:
-        ftp = FTP(ftp_connect)
-        ftp.login()  #login
-        ftp.cwd(metadata_path)
-        print(f"New version found or file missing. Downloading {filename}...")
-        #if the file doesn't exist locally
-        with open(filename, "wb") as local_file: #creates a file on the local directory that deals with the binary data
-            #ftp.retrbinary is used to help with the massive files by retrieving the data in binary format (zip)   
-            ftp.retrbinary(f"RETR {filename}", local_file.write)
-        print("Download complete.")
-        ftp.quit() #close session
+    # Read the existing FASTA file
+    if not os.path.exists(fatsa_query):
+        print(f"Error: The file '{fatsa_query}' was not found.")
+        return
+
+    print(f"Reading query sequence from {fatsa_query}...")
+    with open(fatsa_query, "r") as f_in:
+        query_content = f_in.read()
+
+    # Save a copy to the local directory to ensure the ARA pipeline can find it
+    with open(output_fasta, "w") as f_out:
+        f_out.write(query_content)
+    
+    # Search NCBI SRA for the source keyword
+    # We limit to 500 to keep the ARA pipeline manageable 
+    print(f"Searching NCBI SRA for source: '{sample_source}'...")
+    try:
+        search_handle = Entrez.esearch(db="sra", term=sample_source, retmax=500)
+        search_results = Entrez.read(search_handle)
+        search_handle.close()
+        
+        id_list = search_results["IdList"]
+        print(f"Found {len(id_list)} matching records at NCBI")
+    except Exception as e:
+        print(f"Error during NCBI Search: {e}")
+        return
+
+    if not id_list:
+        print("No records found for that source")
+        return
+
+    # Convert internal IDs to SRR Run Accessions
+    print("Converting IDs to SRR Run Accessions...")
+    accession_file = "matching_accessions.txt"
+    run_accessions = []
+
+    # Fetch summary info for the IDs found
+    try:
+        summary_handle = Entrez.esummary(db="sra", id=",".join(id_list))
+        summaries = Entrez.read(summary_handle)
+        summary_handle.close()
+
+        for entry in summaries:
+            # The SRR number is found inside the 'Runs' column 
+            # Example: "<Run acc="SRR12345" ... />"
+            # Extract the accession using split
+            run_info = entry['Runs']
+            if 'acc="' in run_info:
+                srr = run_info.split('acc="')[1].split('"')[0]
+                run_accessions.append(srr)
+                
+    except Exception as e:
+        print(f"Error retrieving accessions: {e}")
+        return
+
+    # Save the SRR list for the ARA Pipeline
+    with open(accession_file, "w") as f:
+        for acc in set(run_accessions):
+            f.write(f"{acc}\n")
+    print(f"Saved {len(run_accessions)} accessions to {accession_file}")
+
+'''    # Start the ARA Pipeline via Snakemake
+    print("Begining ARA Pipeline for BLAST analysis...")
+    # Using check=True to ensure we see errors if Snakemake fails
+    import subprocess
+    try:
+        subprocess.run([
+            "snakemake", 
+            "-s", "ARA_Pipeline.smk", 
+            "--config", f"list={accession_file}", f"query={output_fasta}"
+        ], check=True)
+    except subprocess.CalledProcessError:
+        print("--- ARA Pipeline encountered an error.")'''
 
 
-    ###### Below begins to parse through the metadata
-
-    # Save the querey
-    os.makedirs(os.path.dirname(output_fasta) or ".", exist_ok=True)
-    with open(fasta_query, "r") as f_in_fasta, open(output_fasta, "w") as f_out_fasta:
-        f_out_fasta.write(f_in_fasta.read())
-
-
-    # Parse the downloaded zip file 
-    hit_count = 0
-    os.makedirs(os.path.dirname(output_list) or ".", exist_ok=True)
-    with open(filename, 'r', encoding='utf-8', errors='ignore') as f_in, \
-         open(output_list, 'w') as f_out:
-        #SRA files usually use UTF-8, specifying that tells python how to translate the binary 
-        #errors='ignore' tells python to ignore weird characters that could make the code crash
-        # Opens two files, first one reads metadata file and the second writes a new file  
-        for line in f_in: #parses data line by line
-            if source_interest.lower() in line.lower():
-                columns = line.split('\t')
-                # The first column is the Run Accession
-                f_out.write(f"{columns[0]}\n") # Immedietly write the matching assecions txt file
-                hit_count += 1
-
-    print(f"{hit_count} accession(s) matched → {output_list}")    
-    return output_list, output_fasta
-
-##### Command-line interface ##################
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Filter SRA metadata and prepare ARA inputs."
-    )
-    parser.add_argument(
-        "--fasta_query",
-        required=True,
-        help="Path to query FASTA file (or raw FASTA string).",
-    )
-    parser.add_argument(
-        "--source",
-        required=True,
-        help="Source keyword to filter SRA records (e.g. 'eyeball', 'soil').",
-    )
-    parser.add_argument(
-        "--output_list",
-        default="results/accessions.txt",
-        help="Output path for filtered accession list (default: results/accessions.txt).",
-    )
-    parser.add_argument(
-        "--output_fasta",
-        default="results/query.fasta",
-        help="Output path for query FASTA copy (default: results/query.fasta).",
-    )
-    return parser.parse_args()
- 
-if __name__ == "__main__":
-    args = parse_args()
-    download_and_filter_sra(
-        fasta_query     = args.fasta_query,
-        source_interest = args.source,
-        output_list     = args.output_list,
-        output_fasta    = args.output_fasta,
-    )
+metadata_search("wastewater", "/home/zberge/ARA_Pipeline/example.fasta")

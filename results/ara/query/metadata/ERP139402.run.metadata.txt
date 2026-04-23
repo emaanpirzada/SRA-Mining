@@ -1,0 +1,4 @@
+Run	RunType	RunSpots	SampleAlias	SampleAccession	StudyAlias	StudyAccession	StudyTitle	StudyAbstract		
+ERP139402	SINGLE	71903	SAMEA110271773	ERS12369387	PV_gut_microbiota	ERP139402	The Gut Microbiota in Patients with Polycythemia Vera	abstract
+1	ENA-FIRST-PUBLIC|ENA-LAST-UPDATE|External Id|INSDC center alias|INSDC center name|INSDC first public|INSDC last update|INSDC status|Submitter Id|sample name	2022-11-14|2022-11-14|SAMEA110271773|STATENS SERUM INSTITUT|STATENS SERUM INSTITUT|2022-11-14T15:51:05Z|2022-11-14T15:51:05Z|public|Patient69_IFN|Patient69_IFN
+ENA-FIRST-PUBLIC|ENA-LAST-UPDATE|External Id|INSDC center alias|INSDC center name|INSDC first public|INSDC last update|INSDC status|Submitter Id|sample name

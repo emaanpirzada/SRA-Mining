@@ -1,0 +1,2 @@
+Run	RunType	RunSpots	SampleAlias	SampleAccession	StudyAlias	StudyAccession	StudyTitle	StudyAbstract		
+ERP108135	SINGLE						-	-		
