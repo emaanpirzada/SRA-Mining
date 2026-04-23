@@ -7,7 +7,7 @@ from Bio import Entrez
 # NCBI login
 Entrez.email = "zberge@luc.edu" 
 
-def metadata_search(sample_source, fasta_query, output_fasta="query.fasta", retmax=500):
+def metadata_search(sample_source, fasta_query, output_fasta="query.fasta", output_list="matching_accessions.txt", retmax=10):
     """
     User provides:
     1. sample_source (e.g., "wastewater" or "urine")
@@ -31,14 +31,15 @@ def metadata_search(sample_source, fasta_query, output_fasta="query.fasta", retm
     # We limit to 500 to keep the ARA pipeline manageable 
     print(f"Searching NCBI SRA for source: '{sample_source}'...")
     try:
-        count_handle = Entrez.esearch(db="sra", term=sample_source, retmax=0)
+        count_handle = Entrez.esearch(db="sra", term=sample_source, retmax=10)
         count_results = Entrez.read(count_handle)
         count_handle.close()
         total = int(count_results["Count"])
         print(f"Total matching records: {total}")
         if total > 500:
             print(f"Warning: {total} total records found but capped at 500. Consider a more specific search term.")
-        search_handle = Entrez.esearch(db="sra", term=sample_source, retmax=500, sort="relevance")
+        time.sleep(0.4)
+        search_handle = Entrez.esearch(db="sra", term=sample_source, retmax=10, sort="relevance")
         search_results = Entrez.read(search_handle)
         search_handle.close()
         
@@ -54,7 +55,7 @@ def metadata_search(sample_source, fasta_query, output_fasta="query.fasta", retm
 
     # Convert internal IDs to SRR Run Accessions
     print("Converting IDs to SRR Run Accessions...")
-    accession_file = "results/accessions.txt"
+    accession_file = output_list
     run_accessions = []
 
     # Fetch summary info for the IDs found
@@ -117,6 +118,11 @@ def parse_args():
         help="Output path for query FASTA copy (default: query.fasta).",
     )
     parser.add_argument(
+    "--output_list",
+    default="matching_accessions.txt",
+    help="Output path for filtered accession list (default: matching_accessions.txt).",
+    )
+    parser.add_argument(
         "--retmax",
         type=int,
         default=500,
@@ -130,5 +136,6 @@ if __name__ == "__main__":
         sample_source = args.source,
         fasta_query   = args.fasta_query,
         output_fasta  = args.output_fasta,
+        output_list   = args.output_list,
         retmax        = args.retmax,
     )

@@ -51,7 +51,8 @@ rule prepare_inputs:
         query      = QUERY_COPY
     params:
         fasta_query = FASTA_QUERY,
-        source      = SOURCE
+        source      = SOURCE,
+        retmax      = config.get("retmax", 500)
     log:
         "logs/prepare_inputs.log"
     shell:
@@ -62,6 +63,7 @@ rule prepare_inputs:
             --source       "{params.source}" \
             --output_list  {output.accessions} \
             --output_fasta {output.query} \
+            --retmax       {params.retmax} \
             > {log} 2>&1
         """
 
@@ -101,23 +103,20 @@ rule run_ara:
         done = ARA_DONE
     params:
         ara_outdir = "results/ara",
-        # Optional ARA flags — adjust or expose as config values as needed
-        evalue     = config.get("evalue",   "1e-5"),
-        identity   = config.get("identity", "90"),
-        threads    = config.get("threads",  4)
+        ara_dir    = config.get("ara_dir", "ARA"),
+        threads    = config.get("threads", 4)
     log:
         "logs/ara.log"
     shell:
         """
         mkdir -p {params.ara_outdir}
 
-        ara \
-            --input    {input.accessions} \
-            --query    {input.query} \
-            --output   {params.ara_outdir} \
-            --evalue   {params.evalue} \
-            --identity {params.identity} \
-            --threads  {params.threads} \
+        perl {params.ara_dir}/ara.pl \
+            --input     {input.accessions} \
+            --sequences {input.query} \
+            --output    {params.ara_outdir} \
+            --mode      screen \
+            --threads   {params.threads} \
             > {log} 2>&1
 
         touch {output.done}
@@ -136,6 +135,7 @@ rule summarize:
         ARA_SUMMARY
     params:
         ara_outdir = "results/ara",
+        ara_dir    = config.get("ara_dir", "ARA"),
         source     = SOURCE
     run:
         import glob

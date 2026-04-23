@@ -4,3 +4,5 @@ SRA_Run_Members.tab
 matching_accessions.txt
 accessions.txt
 ARA_Code/
+results/
+.snakemake
