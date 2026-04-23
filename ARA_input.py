@@ -29,12 +29,19 @@ def metadata_search(sample_source, fatsa_query, output_fasta="query.fasta"):
     # We limit to 500 to keep the ARA pipeline manageable 
     print(f"Searching NCBI SRA for source: '{sample_source}'...")
     try:
-        search_handle = Entrez.esearch(db="sra", term=sample_source, retmax=500)
+        count_handle = Entrez.esearch(db="sra", term=sample_source, retmax=0)
+        count_results = Entrez.read(count_handle)
+        count_handle.close()
+        total = int(count_results["Count"])
+        print(f"Total matching records: {total}")
+        if total > 500:
+            print(f"Warning: {total} total records found but capped at 500. Consider a more specific search term.")
+        search_handle = Entrez.esearch(db="sra", term=sample_source, retmax=500, sort="relevance")
         search_results = Entrez.read(search_handle)
         search_handle.close()
         
         id_list = search_results["IdList"]
-        print(f"Found {len(id_list)} matching records at NCBI")
+        print(f"Saved the top {len(id_list)} matching records at NCBI, sorted by relevance.")
     except Exception as e:
         print(f"Error during NCBI Search: {e}")
         return
@@ -86,5 +93,4 @@ def metadata_search(sample_source, fatsa_query, output_fasta="query.fasta"):
     except subprocess.CalledProcessError:
         print("--- ARA Pipeline encountered an error.")'''
 
-
-metadata_search("wastewater", "/home/zberge/ARA_Pipeline/example.fasta")
+metadata_search("gut", "/home/epirzada/SRA-Mining/query.fasta")
