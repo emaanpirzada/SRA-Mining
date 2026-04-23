@@ -1,2 +1,0 @@
-Run	RunType	RunSpots	SampleAlias	SampleAccession	StudyAlias	StudyAccession	StudyTitle	StudyAbstract		
-ERS3231755	SINGLE						-	-		

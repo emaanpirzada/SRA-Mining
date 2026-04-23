@@ -5,4 +5,5 @@ matching_accessions.txt
 accessions.txt
 ARA_Code/
 results/
-.snakemake
+.snakemake/log
+.snakemake/metadata
