@@ -111,7 +111,7 @@ ACTTTGATTAATCAAGTTATTCAATATATAGTAGGAAGAGTTGCTGAAAAA
 Execute this command to search NCBI and generate your target list:
 
 Bash
-**python ARA_input.py --source "Enterococcus" --fasta_query "example.fasta"**
+**snakemake --cores 4 --config fasta_query=example.fasta source="eye" retmax=10**
 
 Result: Generates matching_accessions.txt (a list of 10 SRR accessions) and query.fasta.
 
