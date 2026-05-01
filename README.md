@@ -36,7 +36,44 @@ A dropdown list of your repositories (or those you have access to) will appear a
 
 Select the destination folder on your machine, and the project will clone automatically.
 ***
+Setting up ARA as a Git Submodule
+
+ARA is included in this repository as a git submodule. When you first clone SRA-Mining, the ARA folder will be empty. To pull it in, run:
+
+< git clone https://github.com/emaanpirzada/SRA-Mining.git
+
+< cd SRA-Mining
+
+< git submodule update --init
+
+Then install the ARA environment using Mamba:
+
+< conda config --add channels defaults
+
+< conda config --add channels bioconda
+
+< conda config --add channels conda-forge
+
+< conda config --set channel_priority strict
+
+< mamba env create -f ARA/requirements.yaml
+
+< conda activate ara_env
+
+< pip install biopython
+
+Then run the ARA setup script:
+
+< cd ARA
+
+< perl setup.pl
+
+< cd ..
+
+You are now ready to run the pipeline.
+***
 🛠️ Dependencies & Software
+
 Python Libraries
 
 1. Python Libraries (Data Retrieval)
