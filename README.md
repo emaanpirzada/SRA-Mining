@@ -6,7 +6,7 @@ The biological problem is that there is a massive amount of data in the NCBI Seq
 ***
 Cloning the environment
 
-Method 1: Using the Command Palette (Fastest)
+**Method 1**: Using the Command Palette 
 
 Open VS Code.
 
@@ -22,7 +22,7 @@ VS Code will prompt you to select a local folder on your computer where you want
 
 Once the download finishes, VS Code will ask if you want to "Open" the newly cloned folder. Click Open.
 
-Method 2: Using the Source Control Tab
+**Method 2**: Using the Source Control Tab
 
 On the left-hand sidebar of VS Code, click the Source Control icon (it looks like a branch node).
 
