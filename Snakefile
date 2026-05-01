@@ -70,7 +70,7 @@ rule prepare_inputs:
 # =============================================================================
 # Rule: check_accessions
 #   Validates that the filtered accession list is non-empty before continuing.
-#   Failing here gives a clean error instead of a cryptic ARA crash.
+#   Failing here gives an error instead of a crash.
 # =============================================================================
 rule check_accessions:
     input:
@@ -92,7 +92,6 @@ rule check_accessions:
 # =============================================================================
 # Rule: run_ara
 #   Passes the accession list and query FASTA to the ARA pipeline.
-#   ARA CLI reference: https://github.com/maurya-anand/ARA
 # =============================================================================
 rule run_ara:
     input:
@@ -146,6 +145,7 @@ rule summarize:
 
         # Collect any TSV/CSV hit files ARA produced
         hit_files = (
+            glob.glob(os.path.join(params.ara_outdir, "**", "*.txt"), recursive=True) +
             glob.glob(os.path.join(params.ara_outdir, "**", "*.tsv"), recursive=True) +
             glob.glob(os.path.join(params.ara_outdir, "**", "*.csv"), recursive=True)
         )

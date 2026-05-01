@@ -3,7 +3,6 @@ results/SRA_Run_Members.tab
 SRA_Run_Members.tab
 matching_accessions.txt
 accessions.txt
-ARA_Code/
+ARA/
 results/
-.snakemake/log
-.snakemake/metadata
+.snakemake/
